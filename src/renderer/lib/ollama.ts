@@ -1,14 +1,16 @@
+import { API_BASE } from "@/env";
 import type { OllamaModel, ModelTag } from "@shared/types";
 
 export async function checkOllamaHealth(endpoint: string): Promise<boolean> {
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000);
-    const res = await fetch(`${endpoint}/api/tags`, {
-      signal: controller.signal,
+    const res = await fetch(`${API_BASE}/api/ollama/health`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ endpoint }),
     });
-    clearTimeout(timeout);
-    return res.ok;
+    if (!res.ok) return false;
+    const data = (await res.json()) as { ok: boolean };
+    return data.ok;
   } catch {
     return false;
   }
@@ -69,7 +71,11 @@ const COMMUNITY_FAVORITES = new Set([
 export async function fetchOllamaModels(
   endpoint: string
 ): Promise<OllamaModel[]> {
-  const res = await fetch(`${endpoint}/api/tags`);
+  const res = await fetch(`${API_BASE}/api/ollama/models`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ endpoint }),
+  });
   if (!res.ok) return [];
   const data = (await res.json()) as { models?: OllamaApiModel[] };
   if (!data.models) return [];

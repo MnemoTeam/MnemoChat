@@ -1,4 +1,5 @@
 import Fastify from "fastify";
+import cors from "@fastify/cors";
 import { settingsRoutes } from "./routes/settings";
 import { connectionRoutes } from "./routes/connections";
 import { characterRoutes } from "./routes/characters";
@@ -15,10 +16,12 @@ import { discoverRoutes } from "./routes/discover";
 import { projectRoutes } from "./routes/projects";
 import { sceneRoutes } from "./routes/scenes";
 import { exportRoutes } from "./routes/export";
+import { ollamaProxyRoutes } from "./routes/ollama-proxy";
 
 const server = Fastify();
 
 export async function startServer(): Promise<number> {
+  await server.register(cors, { origin: true });
   await server.register(settingsRoutes);
   await server.register(connectionRoutes);
   await server.register(characterRoutes);
@@ -35,6 +38,7 @@ export async function startServer(): Promise<number> {
   await server.register(projectRoutes);
   await server.register(sceneRoutes);
   await server.register(exportRoutes);
+  await server.register(ollamaProxyRoutes);
 
   const port = 3001;
   await server.listen({ port, host: "127.0.0.1" });
