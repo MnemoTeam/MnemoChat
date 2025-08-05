@@ -34,7 +34,7 @@ function RootRedirect() {
     ])
       .then(([setting, connections]) => {
         if (setting?.value === "true" || connections.length > 0) {
-          navigate("/characters", { replace: true });
+          navigate("/dashboard", { replace: true });
         } else {
           navigate("/onboarding", { replace: true });
         }
