@@ -20,6 +20,7 @@ import {
   updatePreset as apiUpdatePreset,
   deletePreset as apiDeletePreset,
   getAvailableModels,
+  getConnections,
   updateChat,
   renameChat as apiRenameChat,
 } from "@/lib/api";
@@ -101,11 +102,12 @@ export function ChatPage() {
     async function init() {
       setLoading(true);
       try {
-        // Load presets, models, chat list in parallel
-        const [presetsData, models, chats] = await Promise.all([
+        // Load presets, models, chat list, and active connection in parallel
+        const [presetsData, models, chats, connections] = await Promise.all([
           getPresets(),
           getAvailableModels(),
           getChats(),
+          getConnections().catch(() => []),
         ]);
 
         if (cancelled) return;
@@ -118,8 +120,12 @@ export function ChatPage() {
         const characterId = searchParams.get("character");
 
         if (characterId) {
-          // Create new chat for this character
-          const model = models[0];
+          // Use the active connection's default model, falling back to first available
+          const activeConnection = connections.find((c) => c.isActive);
+          const defaultModelId = activeConnection?.defaultModel;
+          const model =
+            (defaultModelId && models.find((m) => m.id === defaultModelId)) ||
+            models[0];
           const newChat = await createChat({
             characterId,
             modelId: model?.id || "unknown",
