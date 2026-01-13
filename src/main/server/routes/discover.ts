@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { db } from "../../db";
 import { discoverLikes, discoverFollows, characters } from "../../db/schema";
 import { eq } from "drizzle-orm";
-import { mnemoFetch } from "../../lib/mnemo-api";
+import { mnemoFetch, mnemoUserFetch, hasPersonalToken } from "../../lib/mnemo-api";
 import {
   extractCharacterFromBuffer,
   parseCharacterJson,
@@ -513,4 +513,67 @@ export async function discoverRoutes(app: FastifyInstance) {
       }
     }
   );
+
+  // Check if personal token is configured and return user info
+  app.get("/api/discover/token-status", async () => {
+    if (!hasPersonalToken()) {
+      return { hasToken: false };
+    }
+    try {
+      const me = await mnemoUserFetch<{
+        profile: {
+          username: string;
+          display_name: string | null;
+          avatar_url: string | null;
+        };
+      }>("/me");
+      return {
+        hasToken: true,
+        username: me.profile?.username || null,
+        displayName: me.profile?.display_name || null,
+        avatarUrl: me.profile?.avatar_url || null,
+      };
+    } catch {
+      return { hasToken: true, username: null, error: "Token may be invalid" };
+    }
+  });
+
+  // For You recommendations (requires personal token)
+  app.get("/api/discover/for-you", async (request, reply) => {
+    const query = request.query as Record<string, string | undefined>;
+    const limit = query.limit || "20";
+
+    if (!hasPersonalToken()) {
+      return reply.status(401).send({ error: "Personal API token required" });
+    }
+
+    try {
+      const result = await mnemoUserFetch<{
+        data: ApiCharacter[];
+        method: string;
+      }>("/for-you", { limit });
+      return result;
+    } catch (err) {
+      console.error("For-you fetch error:", err);
+      return reply.status(500).send({
+        error: err instanceof Error ? err.message : "Failed to fetch recommendations",
+      });
+    }
+  });
+
+  // Get current user profile (requires personal token)
+  app.get("/api/discover/me", async (_request, reply) => {
+    if (!hasPersonalToken()) {
+      return reply.status(401).send({ error: "Personal API token required" });
+    }
+
+    try {
+      return await mnemoUserFetch("/me");
+    } catch (err) {
+      console.error("User profile fetch error:", err);
+      return reply.status(500).send({
+        error: err instanceof Error ? err.message : "Failed to fetch profile",
+      });
+    }
+  });
 }

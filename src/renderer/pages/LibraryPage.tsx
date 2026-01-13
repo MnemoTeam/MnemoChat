@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 import { cn } from "@/lib/utils";
 import { MyLibrary } from "@/components/library/MyLibrary";
 import { DiscoverFeed } from "@/components/library/DiscoverFeed";
@@ -8,7 +8,6 @@ import {
   getCollections,
   getLibraryLorebooks,
   getPersonas,
-  getDiscoverCards,
   createCollection,
   deleteCollection,
   deleteCharacter,
@@ -20,9 +19,6 @@ import {
   duplicatePersona,
   setDefaultPersona,
   createPersona,
-  importDiscoverCard,
-  likeDiscoverCard,
-  seedDiscoverData,
   getSetting,
   setSetting,
   createCharacter,
@@ -33,7 +29,6 @@ import type {
   Collection,
   LibraryLorebook,
   Persona,
-  DiscoverCard,
   LibraryTab,
   LibraryContentType,
   GridDensity,
@@ -59,10 +54,25 @@ const FEED_TABS: DiscoverFeedTab[] = [
 
 export function LibraryPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
 
-  // Tab state
-  const [activeTab, setActiveTab] = useState<LibraryTab>("my-library");
+  // Tab state — persisted in URL so it survives remounts
+  const activeTab = (searchParams.get("tab") as LibraryTab) || "my-library";
+  const setActiveTab = useCallback(
+    (tab: LibraryTab) => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        if (tab === "my-library") {
+          next.delete("tab");
+        } else {
+          next.set("tab", tab);
+        }
+        return next;
+      }, { replace: true });
+    },
+    [setSearchParams]
+  );
   const [activeContentType, setActiveContentType] =
     useState<LibraryContentType>("characters");
   const [gridDensity, setGridDensity] = useState<GridDensity>("comfortable");
@@ -74,7 +84,6 @@ export function LibraryPage() {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [lorebooks, setLorebooks] = useState<LibraryLorebook[]>([]);
   const [personas, setPersonas] = useState<Persona[]>([]);
-  const [discoverCards, setDiscoverCards] = useState<DiscoverCard[]>([]);
 
   const fetchLibraryData = useCallback(async () => {
     try {
@@ -93,15 +102,6 @@ export function LibraryPage() {
     }
   }, []);
 
-  const fetchDiscoverData = useCallback(async () => {
-    try {
-      const cards = await getDiscoverCards();
-      setDiscoverCards(cards);
-    } catch (err) {
-      console.error("Failed to fetch discover data:", err);
-    }
-  }, []);
-
   // Initial load
   useEffect(() => {
     async function init() {
@@ -113,20 +113,11 @@ export function LibraryPage() {
         }
       } catch {}
 
-      // Seed discover data if needed
-      try {
-        const seeded = await getSetting("discover_seeded");
-        if (!seeded) {
-          await seedDiscoverData();
-          await setSetting("discover_seeded", "true");
-        }
-      } catch {}
-
-      await Promise.all([fetchLibraryData(), fetchDiscoverData()]);
+      await fetchLibraryData();
       setLoading(false);
     }
     init();
-  }, [fetchLibraryData, fetchDiscoverData]);
+  }, [fetchLibraryData]);
 
   // Grid density persistence
   const handleChangeGridDensity = useCallback(
@@ -293,31 +284,10 @@ export function LibraryPage() {
     [navigate]
   );
 
-  // Discover actions
-  const handleImportCard = useCallback(
-    async (cardId: string) => {
-      try {
-        await importDiscoverCard(cardId);
-        await fetchLibraryData();
-        await fetchDiscoverData();
-      } catch (err) {
-        console.error("Failed to import card:", err);
-      }
-    },
-    [fetchLibraryData, fetchDiscoverData]
-  );
-
-  const handleLikeCard = useCallback(
-    async (cardId: string) => {
-      try {
-        await likeDiscoverCard(cardId);
-        await fetchDiscoverData();
-      } catch (err) {
-        console.error("Failed to like card:", err);
-      }
-    },
-    [fetchDiscoverData]
-  );
+  // Refresh library after a discover import
+  const handleDiscoverImport = useCallback(() => {
+    fetchLibraryData();
+  }, [fetchLibraryData]);
 
   // Drag-and-drop PNG import
   const handleDrop = useCallback(
@@ -410,11 +380,9 @@ export function LibraryPage() {
         )}
         {activeTab === "discover" && (
           <DiscoverFeed
-            cards={discoverCards}
             feedTabs={FEED_TABS}
             gridDensity={gridDensity}
-            onImportCard={handleImportCard}
-            onLikeCard={handleLikeCard}
+            onImportCard={handleDiscoverImport}
           />
         )}
       </div>

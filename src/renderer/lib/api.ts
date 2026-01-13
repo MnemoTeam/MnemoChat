@@ -537,8 +537,18 @@ export async function exportLorebook(id: string): Promise<unknown> {
 }
 
 // Discover
-export async function getDiscoverCards(): Promise<DiscoverCard[]> {
-  const res = await fetch(`${API_BASE}/api/discover/cards`);
+import type { DiscoverQuery, DiscoverCardsResponse } from "@shared/library-types";
+
+export async function getDiscoverCards(query?: DiscoverQuery): Promise<DiscoverCardsResponse> {
+  const params = new URLSearchParams();
+  if (query?.search) params.set("search", query.search);
+  if (query?.sort) params.set("sort", query.sort);
+  if (query?.showNsfw) params.set("showNsfw", "true");
+  if (query?.tag) params.set("tag", query.tag);
+  if (query?.page !== undefined) params.set("page", String(query.page));
+  if (query?.pageSize) params.set("pageSize", String(query.pageSize));
+  const qs = params.toString();
+  const res = await fetch(`${API_BASE}/api/discover/cards${qs ? `?${qs}` : ""}`);
   return json(res);
 }
 
@@ -566,10 +576,24 @@ export async function getCreatorProfile(username: string): Promise<CreatorProfil
   return json(res);
 }
 
-export async function seedDiscoverData(): Promise<{ seeded: boolean }> {
-  const res = await fetch(`${API_BASE}/api/discover/seed`, {
-    method: "POST",
-  });
+export async function getTokenStatus(): Promise<{
+  hasToken: boolean;
+  username?: string | null;
+  displayName?: string | null;
+  avatarUrl?: string | null;
+  error?: string;
+}> {
+  const res = await fetch(`${API_BASE}/api/discover/token-status`);
+  return json(res);
+}
+
+export async function getForYouCards(limit = 20): Promise<{ data: DiscoverCard[]; method: string }> {
+  const res = await fetch(`${API_BASE}/api/discover/for-you?limit=${limit}`);
+  return json(res);
+}
+
+export async function getMnemoProfile(): Promise<unknown> {
+  const res = await fetch(`${API_BASE}/api/discover/me`);
   return json(res);
 }
 

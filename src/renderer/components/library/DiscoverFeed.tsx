@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { Search, Loader2, WifiOff, ShieldOff, Shield } from 'lucide-react'
+import { Search, Loader2, WifiOff, ShieldOff, Shield, User, LogOut, Eye, EyeOff, Check, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type {
   DiscoverCard as DiscoverCardType,
@@ -9,7 +9,7 @@ import type {
 import type { DiscoverQuery } from '@shared/library-types'
 import { DiscoverCard } from './DiscoverCard'
 import { CardDetailOverlay } from './CardDetailOverlay'
-import { getDiscoverCards, getDiscoverCard, likeDiscoverCard, importDiscoverCard } from '@/lib/api'
+import { getDiscoverCards, getDiscoverCard, likeDiscoverCard, importDiscoverCard, getTokenStatus, setSetting } from '@/lib/api'
 
 interface DiscoverFeedProps {
   feedTabs: DiscoverFeedTab[]
@@ -35,6 +35,182 @@ const feedToSort: Record<DiscoverFeedTab, DiscoverQuery['sort']> = {
   recommended: 'gems',
 }
 
+interface AccountInfo {
+  hasToken: boolean
+  username?: string | null
+  displayName?: string | null
+  avatarUrl?: string | null
+  error?: string
+}
+
+function AccountButton({ account, onTokenSaved, onLogout }: {
+  account: AccountInfo | null
+  onTokenSaved: () => void
+  onLogout: () => void
+}) {
+  const [showPopover, setShowPopover] = useState(false)
+  const [tokenInput, setTokenInput] = useState('')
+  const [showToken, setShowToken] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const popoverRef = useRef<HTMLDivElement>(null)
+
+  // Close popover on outside click
+  useEffect(() => {
+    if (!showPopover) return
+    function handleClick(e: MouseEvent) {
+      if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
+        setShowPopover(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [showPopover])
+
+  async function handleSaveToken() {
+    if (!tokenInput.trim()) return
+    setSaving(true)
+    await setSetting('mnemoApiToken', tokenInput.trim())
+    setTokenInput('')
+    setSaving(false)
+    setShowPopover(false)
+    onTokenSaved()
+  }
+
+  async function handleLogout() {
+    await setSetting('mnemoApiToken', '')
+    setShowPopover(false)
+    onLogout()
+  }
+
+  const isLoggedIn = account?.hasToken && account?.username
+
+  return (
+    <div className="relative" ref={popoverRef}>
+      <button
+        onClick={() => setShowPopover((v) => !v)}
+        className={cn(
+          'flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors',
+          isLoggedIn
+            ? 'border-zinc-700 bg-zinc-800/50 text-zinc-200 hover:bg-zinc-700'
+            : 'border-indigo-600/50 bg-indigo-600/20 text-indigo-300 hover:bg-indigo-600/30'
+        )}
+      >
+        {isLoggedIn ? (
+          <>
+            {account.avatarUrl ? (
+              <img
+                src={account.avatarUrl}
+                alt=""
+                className="h-5 w-5 rounded-full object-cover"
+              />
+            ) : (
+              <User className="h-4 w-4" />
+            )}
+            <span className="max-w-[100px] truncate text-xs font-medium">
+              {account.displayName || account.username}
+            </span>
+          </>
+        ) : (
+          <>
+            <User className="h-4 w-4" />
+            <span className="text-xs font-medium">Sign In</span>
+          </>
+        )}
+      </button>
+
+      {showPopover && (
+        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-zinc-700 bg-zinc-900 p-4 shadow-xl">
+          {isLoggedIn ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                {account.avatarUrl ? (
+                  <img
+                    src={account.avatarUrl}
+                    alt=""
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800">
+                    <User className="h-5 w-5 text-zinc-400" />
+                  </div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-zinc-100">
+                    {account.displayName || account.username}
+                  </p>
+                  {account.displayName && account.username && (
+                    <p className="truncate text-xs text-zinc-500">@{account.username}</p>
+                  )}
+                </div>
+              </div>
+              <div className="rounded-lg border border-green-800/40 bg-green-900/20 px-3 py-2 text-xs text-green-400">
+                Connected to mnemo.studio
+              </div>
+              <button
+                onClick={handleLogout}
+                className="flex w-full items-center gap-2 rounded-lg border border-zinc-700 px-3 py-2 text-sm text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+              >
+                <LogOut className="h-4 w-4" />
+                Disconnect
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm font-medium text-zinc-200">Connect to mnemo.studio</p>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Enter your personal API token to unlock personalized recommendations and sync favorites.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type={showToken ? 'text' : 'password'}
+                    value={tokenInput}
+                    onChange={(e) => setTokenInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSaveToken() }}
+                    placeholder="Paste API token..."
+                    className="w-full rounded-lg border border-zinc-700 bg-zinc-800/50 py-2 pl-3 pr-9 text-sm text-zinc-100 outline-none placeholder:text-zinc-500 focus:border-indigo-500/50"
+                  />
+                  <button
+                    onClick={() => setShowToken((v) => !v)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-zinc-500 hover:text-zinc-300"
+                  >
+                    {showToken ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                  </button>
+                </div>
+                <button
+                  onClick={handleSaveToken}
+                  disabled={saving || !tokenInput.trim()}
+                  className="flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:opacity-40"
+                >
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+                </button>
+              </div>
+              {account?.hasToken && account?.error && (
+                <div className="rounded-lg border border-amber-800/40 bg-amber-900/20 px-3 py-2 text-xs text-amber-400">
+                  {account.error}
+                </div>
+              )}
+              <p className="text-[11px] text-zinc-600">
+                Generate a token from Settings on{' '}
+                <a
+                  href="https://mnemo.studio/settings"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-400 hover:text-indigo-300"
+                >
+                  mnemo.studio
+                </a>
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export function DiscoverFeed({
   feedTabs,
   gridDensity = 'comfortable',
@@ -53,7 +229,17 @@ export function DiscoverFeed({
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [account, setAccount] = useState<AccountInfo | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout>>()
+
+  // Load account status on mount
+  useEffect(() => {
+    getTokenStatus().then(setAccount).catch(() => setAccount({ hasToken: false }))
+  }, [])
+
+  function refreshAccount() {
+    getTokenStatus().then(setAccount).catch(() => setAccount({ hasToken: false }))
+  }
 
   // Debounce search input
   useEffect(() => {
@@ -160,6 +346,12 @@ export function DiscoverFeed({
             {feedLabels[tab]}
           </button>
         ))}
+        <div className="flex-1" />
+        <AccountButton
+          account={account}
+          onTokenSaved={refreshAccount}
+          onLogout={() => setAccount({ hasToken: false })}
+        />
       </div>
 
       <div className="flex items-center gap-3 px-6 py-3">
