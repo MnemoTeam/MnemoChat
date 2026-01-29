@@ -77,11 +77,19 @@ export function SceneSidebar({
           <div className="space-y-0">
             {/* Character info */}
             <div className="border-b border-zinc-800 p-4">
-              <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-2xl bg-gradient-to-br from-zinc-700/40 to-zinc-800/60 ring-1 ring-zinc-700/50">
-                <span className="text-4xl font-bold text-zinc-500">
-                  {chat.characterName.charAt(0)}
-                </span>
-              </div>
+              {chat.characterPortraitUrl ? (
+                <img
+                  src={chat.characterPortraitUrl}
+                  alt={chat.characterName}
+                  className="mx-auto h-28 w-28 rounded-2xl object-cover ring-1 ring-zinc-700/50"
+                />
+              ) : (
+                <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-2xl bg-gradient-to-br from-zinc-700/40 to-zinc-800/60 ring-1 ring-zinc-700/50">
+                  <span className="text-4xl font-bold text-zinc-500">
+                    {chat.characterName.charAt(0)}
+                  </span>
+                </div>
+              )}
               <h3
                 className="mt-3 text-center text-sm font-semibold text-zinc-200"
                 style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif" }}

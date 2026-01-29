@@ -1,4 +1,4 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, globalShortcut } from "electron";
 import path from "path";
 import { startServer, stopServer } from "./server";
 
@@ -17,7 +17,13 @@ async function createWindow(port: number) {
   });
 
   if (isDev) {
+    mainWindow.webContents.on("did-finish-load", () => {
+      mainWindow?.webContents.openDevTools();
+    });
     await mainWindow.loadURL(`http://localhost:5173`);
+    globalShortcut.register("F12", () => {
+      mainWindow?.webContents.toggleDevTools();
+    });
   } else {
     await mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
   }

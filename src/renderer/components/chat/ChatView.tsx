@@ -92,9 +92,17 @@ export function ChatView({
           onClick={() => onOpenCharacterEditor?.(chat.characterId)}
           className="flex items-center gap-2.5 rounded-lg px-2 py-1 transition-colors hover:bg-zinc-800"
         >
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600/30 to-indigo-800/30 text-xs font-bold text-indigo-300 ring-1 ring-indigo-500/20">
-            {chat.characterName.charAt(0)}
-          </div>
+          {chat.characterPortraitUrl ? (
+            <img
+              src={chat.characterPortraitUrl}
+              alt={chat.characterName}
+              className="h-7 w-7 rounded-full object-cover ring-1 ring-indigo-500/20"
+            />
+          ) : (
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600/30 to-indigo-800/30 text-xs font-bold text-indigo-300 ring-1 ring-indigo-500/20">
+              {chat.characterName.charAt(0)}
+            </div>
+          )}
           <span
             className="text-sm font-semibold text-zinc-200"
             style={{ fontFamily: "'Space Grotesk', system-ui, sans-serif" }}
@@ -255,55 +263,49 @@ export function ChatView({
             </div>
             <div className="flex-1 overflow-y-auto">
               {filteredChatList.map((c) => (
-                <div
+                <button
                   key={c.id}
+                  onClick={() => {
+                    onOpenChat?.(c.id)
+                    setChatListOpen(false)
+                  }}
                   className={cn(
-                    'group/item flex w-full items-start gap-2.5 border-b border-zinc-800/50 px-3 py-3 text-left transition-colors hover:bg-zinc-800/50',
+                    'group/item flex w-full items-center gap-2.5 border-b border-zinc-800/50 px-3 py-2.5 text-left transition-colors hover:bg-zinc-800/50',
                     c.id === chat.id && 'bg-indigo-500/5 border-l-2 border-l-indigo-500'
                   )}
                 >
-                  <button
-                    onClick={() => {
-                      onOpenChat?.(c.id)
-                      setChatListOpen(false)
-                    }}
-                    className="flex min-w-0 flex-1 items-start gap-2.5"
-                  >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-xs font-bold text-zinc-500">
+                  {c.characterPortraitUrl ? (
+                    <img
+                      src={c.characterPortraitUrl}
+                      alt={c.characterName}
+                      className="h-9 w-9 shrink-0 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-800 text-xs font-bold text-zinc-500">
                       {c.characterName.charAt(0)}
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs font-medium text-zinc-300">
-                        {c.title || 'Untitled chat'}
-                      </p>
-                      <p className="text-[10px] text-zinc-600">{c.characterName}</p>
-                      <div className="mt-1 flex items-center gap-2 text-[10px] text-zinc-600">
-                        <span>{c.messageCount} msgs</span>
-                        {c.bookmarkCount > 0 && <span>{c.bookmarkCount} bm</span>}
-                        {c.wordCount > 0 && <span>{c.wordCount.toLocaleString()} words</span>}
-                      </div>
-                      {c.tags.length > 0 && (
-                        <div className="mt-1 flex flex-wrap gap-1">
-                          {c.tags.map((tag) => (
-                            <span
-                              key={tag}
-                              className="rounded bg-zinc-800 px-1 py-0.5 text-[9px] text-zinc-500"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-medium text-zinc-300">
+                      {c.title || 'Untitled chat'}
+                    </p>
+                    <p className="truncate text-[10px] text-zinc-500">{c.characterName}</p>
+                    <div className="mt-0.5 flex items-center gap-2 text-[10px] text-zinc-600">
+                      <span>{c.messageCount} msgs</span>
+                      {c.wordCount > 0 && <span>{c.wordCount.toLocaleString()} words</span>}
                     </div>
-                  </button>
+                  </div>
                   <button
-                    onClick={() => onDeleteChat?.(c.id)}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onDeleteChat?.(c.id)
+                    }}
                     className="shrink-0 rounded-md p-1 text-zinc-600 opacity-0 transition-all hover:bg-red-500/10 hover:text-red-400 group-hover/item:opacity-100"
                     title="Delete chat"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                   </button>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -318,6 +320,7 @@ export function ChatView({
                 message={msg}
                 characterName={chat.characterName}
                 characterInitial={chat.characterName.charAt(0)}
+                characterPortraitUrl={chat.characterPortraitUrl}
                 onEdit={onEditMessage}
                 onDelete={onDeleteMessage}
                 onRegenerate={onRegenerate}
@@ -331,9 +334,17 @@ export function ChatView({
             {/* Streaming response bubble */}
             {isGenerating && (
               <div className="flex gap-3 px-6 py-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600/30 to-indigo-800/30 text-xs font-bold text-indigo-300 ring-1 ring-indigo-500/20">
-                  {chat.characterName.charAt(0)}
-                </div>
+                {chat.characterPortraitUrl ? (
+                  <img
+                    src={chat.characterPortraitUrl}
+                    alt={chat.characterName}
+                    className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-indigo-500/20"
+                  />
+                ) : (
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600/30 to-indigo-800/30 text-xs font-bold text-indigo-300 ring-1 ring-indigo-500/20">
+                    {chat.characterName.charAt(0)}
+                  </div>
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="mb-1 text-[11px] font-medium text-indigo-400">
                     {chat.characterName}

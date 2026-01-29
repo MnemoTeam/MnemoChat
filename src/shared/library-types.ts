@@ -85,6 +85,27 @@ export interface DiscoverCard {
   specVersion: CardSpecVersion;
   publishedAt: string;
   hasUpdate: boolean;
+  fileUrl?: string;
+  fileType?: string;
+  description?: string;
+  greeting?: string;
+  isLiked?: boolean;
+  pov?: string;
+}
+
+export interface DiscoverQuery {
+  search?: string;
+  sort?: "latest" | "trending" | "gems" | "following";
+  showNsfw?: boolean;
+  tag?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface DiscoverCardsResponse {
+  cards: DiscoverCard[];
+  hasMore: boolean;
+  error?: string;
 }
 
 export interface CreatorProfile {

@@ -46,11 +46,19 @@ export function CardDetailOverlay({
 
       <div className="relative z-10 flex max-h-[85vh] w-full max-w-3xl overflow-hidden rounded-2xl border border-zinc-700 bg-zinc-900 shadow-2xl">
         <div className="hidden w-[45%] shrink-0 md:block">
-          <div className={cn('flex h-full items-center justify-center bg-gradient-to-br', getGradient(card.tags))}>
-            <span className="text-8xl font-bold text-zinc-500/40">
-              {card.name.charAt(0)}
-            </span>
-          </div>
+          {card.portraitUrl ? (
+            <img
+              src={card.portraitUrl}
+              alt={card.name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className={cn('flex h-full items-center justify-center bg-gradient-to-br', getGradient(card.tags))}>
+              <span className="text-8xl font-bold text-zinc-500/40">
+                {card.name.charAt(0)}
+              </span>
+            </div>
+          )}
         </div>
 
         <div className="flex flex-1 flex-col overflow-y-auto p-6">
@@ -104,12 +112,28 @@ export function CardDetailOverlay({
             <h4 className="mb-1.5 text-[10px] font-medium uppercase tracking-widest text-zinc-600">
               Description
             </h4>
-            <p className="text-sm leading-relaxed text-zinc-300">
-              {card.descriptionPreview}
+            <p className="text-sm leading-relaxed text-zinc-300 whitespace-pre-line">
+              {card.description || card.descriptionPreview}
             </p>
           </div>
 
+          {card.greeting && (
+            <div className="mt-5">
+              <h4 className="mb-1.5 text-[10px] font-medium uppercase tracking-widest text-zinc-600">
+                Greeting Preview
+              </h4>
+              <p className="text-sm leading-relaxed text-zinc-400 italic line-clamp-4">
+                {card.greeting}
+              </p>
+            </div>
+          )}
+
           <div className="mt-5 flex items-center gap-4">
+            {card.pov && (
+              <span className="rounded-full bg-indigo-500/15 px-2.5 py-1 text-xs font-medium text-indigo-400">
+                {card.pov}
+              </span>
+            )}
             {card.lorebookEntryCount > 0 && (
               <div className="flex items-center gap-1.5 text-xs text-zinc-500">
                 <BookOpen className="h-3.5 w-3.5" />

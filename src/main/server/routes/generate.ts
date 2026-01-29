@@ -102,6 +102,8 @@ export async function generateRoutes(app: FastifyInstance) {
       const body = (request.body as Record<string, unknown>) || {};
       const mode = (body.mode as string) || "in_character";
 
+      console.log(`[generate] === Request received for chat=${chatId} mode=${mode} origin=${request.headers.origin} ===`);
+
       // Tell Fastify we're taking over the raw response
       reply.hijack();
 
@@ -387,6 +389,8 @@ export async function generateRoutes(app: FastifyInstance) {
 
         db.insert(messages).values(record).run();
         updateChatCounts(chatId);
+
+        console.log(`[generate] === Sending done event, content length=${fullContent.length} ===`);
 
         sendSSE("done", {
           message: {

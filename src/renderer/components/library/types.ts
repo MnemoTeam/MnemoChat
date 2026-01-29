@@ -16,4 +16,6 @@ export type {
   LorebookColor,
   CardSpecVersion,
   CommunityRef,
+  DiscoverQuery,
+  DiscoverCardsResponse,
 } from "@shared/library-types";

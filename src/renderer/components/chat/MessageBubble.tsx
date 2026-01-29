@@ -16,6 +16,7 @@ interface MessageBubbleProps {
   message: Message
   characterName?: string
   characterInitial?: string
+  characterPortraitUrl?: string
   onEdit?: (messageId: string, content: string) => void
   onDelete?: (messageId: string) => void
   onRegenerate?: (messageId: string) => void
@@ -58,6 +59,7 @@ export function MessageBubble({
   message,
   characterName,
   characterInitial,
+  characterPortraitUrl,
   onEdit,
   onDelete,
   onRegenerate,
@@ -120,9 +122,17 @@ export function MessageBubble({
         <div className="relative max-w-none">
           <div className="flex gap-3">
             {/* Avatar */}
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600/30 to-indigo-800/30 text-xs font-bold text-indigo-300 ring-1 ring-indigo-500/20">
-              {characterInitial || 'A'}
-            </div>
+            {characterPortraitUrl ? (
+              <img
+                src={characterPortraitUrl}
+                alt={characterName || 'AI'}
+                className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-indigo-500/20"
+              />
+            ) : (
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600/30 to-indigo-800/30 text-xs font-bold text-indigo-300 ring-1 ring-indigo-500/20">
+                {characterInitial || 'A'}
+              </div>
+            )}
 
             {/* Content */}
             <div className="min-w-0 flex-1">

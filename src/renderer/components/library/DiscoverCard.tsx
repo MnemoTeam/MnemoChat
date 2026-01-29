@@ -49,11 +49,20 @@ export function DiscoverCard({
       onClick={onOpenDetail}
     >
       <div className="relative aspect-[3/4] overflow-hidden">
-        <div className={cn('flex h-full items-center justify-center bg-gradient-to-br', getTagGradient(card.tags))}>
-          <span className={cn('font-bold text-zinc-500/50', isCompact ? 'text-4xl' : 'text-6xl')}>
-            {card.name.charAt(0)}
-          </span>
-        </div>
+        {card.portraitUrl ? (
+          <img
+            src={card.portraitUrl}
+            alt={card.name}
+            className="h-full w-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          <div className={cn('flex h-full items-center justify-center bg-gradient-to-br', getTagGradient(card.tags))}>
+            <span className={cn('font-bold text-zinc-500/50', isCompact ? 'text-4xl' : 'text-6xl')}>
+              {card.name.charAt(0)}
+            </span>
+          </div>
+        )}
 
         {card.contentTier === 'nsfw' && (
           <div className="absolute left-2 top-2 rounded-full bg-rose-500/80 px-2 py-0.5 text-[9px] font-medium text-white backdrop-blur-sm">

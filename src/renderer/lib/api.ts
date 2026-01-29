@@ -761,65 +761,84 @@ export function generateResponse(
 ): AbortController {
   const controller = new AbortController();
 
-  (async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/chats/${chatId}/generate`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: opts.mode }),
-        signal: controller.signal,
-      });
+  // Use XMLHttpRequest instead of fetch+ReadableStream for Electron compatibility.
+  // Electron's fetch can buffer streaming responses instead of delivering them
+  // incrementally, but XHR's onprogress + responseText works reliably everywhere.
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", `${API_BASE}/api/chats/${chatId}/generate`);
+  xhr.setRequestHeader("Content-Type", "application/json");
 
-      if (!res.ok) {
-        onError(`HTTP ${res.status}: ${res.statusText}`);
-        return;
-      }
+  let lastIndex = 0;
+  let currentEvent = "";
+  let buffer = "";
+  let doneHandled = false;
 
-      const reader = res.body?.getReader();
-      if (!reader) {
-        onError("No response stream");
-        return;
-      }
-
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() || "";
-
-        let currentEvent = "";
-        for (const line of lines) {
-          if (line.startsWith("event: ")) {
-            currentEvent = line.slice(7).trim();
-          } else if (line.startsWith("data: ")) {
-            const data = line.slice(6);
-            try {
-              const parsed = JSON.parse(data);
-              if (currentEvent === "token") {
-                onToken(parsed.content);
-              } else if (currentEvent === "done") {
-                onDone(parsed.message as Message);
-              } else if (currentEvent === "error") {
-                onError(parsed.error);
-              }
-            } catch {
-              // skip malformed data
-            }
-            currentEvent = "";
-          }
+  function processLine(line: string) {
+    if (line.startsWith("event: ")) {
+      currentEvent = line.slice(7).trim();
+    } else if (line.startsWith("data: ")) {
+      const data = line.slice(6);
+      try {
+        const parsed = JSON.parse(data);
+        if (currentEvent === "token") {
+          onToken(parsed.content);
+        } else if (currentEvent === "done") {
+          doneHandled = true;
+          onDone(parsed.message as Message);
+        } else if (currentEvent === "error") {
+          doneHandled = true;
+          onError(parsed.error);
         }
+      } catch {
+        // skip malformed data lines
       }
-    } catch (err) {
-      if ((err as Error).name !== "AbortError") {
-        onError(err instanceof Error ? err.message : "Generation failed");
+      currentEvent = "";
+    }
+  }
+
+  function processNewData(newData: string) {
+    buffer += newData;
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+    for (const line of lines) {
+      processLine(line);
+    }
+  }
+
+  xhr.onprogress = () => {
+    const newData = xhr.responseText.substring(lastIndex);
+    lastIndex = xhr.responseText.length;
+    if (newData) processNewData(newData);
+  };
+
+  xhr.onload = () => {
+    // Process any remaining data after the final onprogress
+    const remaining = xhr.responseText.substring(lastIndex);
+    if (remaining) processNewData(remaining);
+    if (buffer.trim()) {
+      for (const line of buffer.split("\n")) {
+        processLine(line);
       }
     }
-  })();
+    if (!doneHandled) {
+      // Server finished without sending done/error — reload messages as fallback
+      onDone({} as Message);
+    }
+  };
+
+  xhr.onerror = () => {
+    if (!doneHandled) {
+      onError("Generation failed — network error");
+    }
+  };
+
+  xhr.onabort = () => {
+    // User cancelled — no callback needed
+  };
+
+  controller.signal.addEventListener("abort", () => xhr.abort());
+
+  xhr.send(JSON.stringify({ mode: opts.mode }));
 
   return controller;
 }
