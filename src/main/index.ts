@@ -45,7 +45,7 @@ async function createWindow() {
       mainWindow?.webContents.toggleDevTools();
     });
   } else {
-    await mainWindow.loadFile(path.join(__dirname, "../renderer/index.html"));
+    await mainWindow.loadFile(path.join(__dirname, "../../renderer/index.html"));
   }
 }
 

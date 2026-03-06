@@ -5,6 +5,7 @@ import path from "path";
 
 export default defineConfig({
   root: "src/renderer",
+  base: "./",
   plugins: [tailwindcss(), react()],
   resolve: {
     alias: {
