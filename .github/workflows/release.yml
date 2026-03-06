@@ -10,7 +10,6 @@ permissions:
 
 jobs:
   build:
-    needs: create_release
     strategy:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
