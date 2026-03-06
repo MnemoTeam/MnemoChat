@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="src/renderer/assets/mnemo-logo.svg" alt="MnemoChat" width="120" />
+</div>
+
 # MnemoChat
 
 A desktop app for local AI roleplay and collaborative storytelling. Built on top of Ollama (or any OpenAI-compatible backend), everything runs on your machine — no accounts, no cloud, no data leaving your device.
