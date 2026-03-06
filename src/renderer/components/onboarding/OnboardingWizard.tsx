@@ -11,6 +11,7 @@ import { ContentTierStep } from "./ContentTierStep";
 import { PersonaStep } from "./PersonaStep";
 import { ConnectOllamaStep } from "./ConnectOllamaStep";
 import { ModelPickerStep } from "./ModelPickerStep";
+import { TitleBar } from "@/components/shell/TitleBar";
 
 interface OnboardingWizardProps {
   contentTierOptions: ContentTierOption[];
@@ -56,6 +57,7 @@ export function OnboardingWizard({
       className="flex min-h-screen flex-col bg-zinc-950"
       style={{ fontFamily: "'Inter', system-ui, sans-serif" }}
     >
+      <TitleBar />
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.05),transparent_60%)]" />
 
       <header className="relative z-10 flex justify-center px-6 pt-8">

@@ -5,14 +5,14 @@ export function TitleBar() {
 
   return (
     <div
-      className="flex h-8 w-full shrink-0 items-center bg-zinc-900 border-b border-zinc-800 select-none"
+      className="relative flex h-8 w-full shrink-0 items-center bg-zinc-900 border-b border-zinc-800 select-none"
       style={{ WebkitAppRegion: "drag" } as React.CSSProperties}
     >
       {/* Spacer for macOS traffic lights */}
       {isMac && <div className="w-20" />}
 
-      {/* App title centered */}
-      <span className="flex-1 flex items-center justify-center gap-2 text-xs font-medium text-zinc-500 tracking-wide">
+      {/* App title absolutely centered relative to full bar */}
+      <span className="absolute inset-0 flex items-center justify-center gap-2 text-xs font-medium text-zinc-500 tracking-wide pointer-events-none">
         <img
           src={logoUrl}
           alt="MnemoChat"
@@ -25,7 +25,7 @@ export function TitleBar() {
       {/* Window controls — hidden on macOS (native traffic lights handle it) */}
       {!isMac && (
         <div
-          className="flex items-center"
+          className="ml-auto flex items-center"
           style={{ WebkitAppRegion: "no-drag" } as React.CSSProperties}
         >
           <button
