@@ -209,6 +209,8 @@ export function ChatPage() {
   }, [chat]);
 
   const triggerGeneration = useCallback((targetChatId: string, mode: InputMode, characterId?: string) => {
+    const characters = chat?.characters ?? [];
+
     setIsGenerating(true);
     setStreamingContent("");
     setGenerationError(null);
@@ -222,6 +224,12 @@ export function ChatPage() {
         setStreamingContent("");
         setGeneratingCharacterId(null);
         await refreshMessages();
+        // Auto-advance to next character in round-robin (group chats only)
+        if (characters.length > 1 && characterId) {
+          const currentIdx = characters.findIndex(c => c.id === characterId);
+          const nextIdx = (currentIdx + 1) % characters.length;
+          setPendingCharacterId(characters[nextIdx].id);
+        }
       },
       (err) => {
         setIsGenerating(false);
@@ -232,7 +240,7 @@ export function ChatPage() {
       },
     );
     abortRef.current = controller;
-  }, [refreshMessages]);
+  }, [chat, refreshMessages]);
 
   const onStopGeneration = useCallback(() => {
     abortRef.current?.abort();

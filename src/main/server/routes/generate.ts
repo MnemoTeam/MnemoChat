@@ -228,7 +228,11 @@ export async function generateRoutes(app: FastifyInstance) {
         if (isGroupChat && otherParticipantNames.length > 0) {
           ollamaMessages.push({
             role: "system",
-            content: `This is a group conversation. Other participants: ${otherParticipantNames.join(", ")}. You are ${charName}. Messages from other characters are prefixed with their name in brackets.`,
+            content: [
+              `This is a group roleplay. You are ONLY ${charName}. You must NEVER speak as, act as, or write the actions/thoughts of any other character.`,
+              `Other participants present: ${otherParticipantNames.join(", ")}. Their messages appear prefixed with [Name]: in the chat history — these are for context only.`,
+              `IMPORTANT: Do NOT use the physical appearance, mannerisms, speech patterns, or traits of ${otherParticipantNames.join(" or ")}. Stay strictly within ${charName}'s established character.`,
+            ].join("\n"),
           });
         }
 
@@ -303,6 +307,14 @@ export async function generateRoutes(app: FastifyInstance) {
           ollamaMessages.push({
             role: "system",
             content: "[Continue your last message without repeating its original content.]",
+          });
+        }
+
+        // Final identity anchor for group chats — highest recency, prevents trait bleed
+        if (isGroupChat) {
+          ollamaMessages.push({
+            role: "system",
+            content: `Remember: you are ${charName}. Write only ${charName}'s response now. Do not include dialogue or actions for ${otherParticipantNames.join(", ")}.`,
           });
         }
 
