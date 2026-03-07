@@ -7,8 +7,9 @@ import { BasicTab } from "./BasicTab";
 import { PromptEngineeringTab } from "./PromptEngineeringTab";
 import { LorebookTab } from "./LorebookTab";
 import { MetaTab } from "./MetaTab";
+import { GenerationTab } from "./GenerationTab";
 
-type TabId = "basic" | "prompts" | "lorebook" | "meta";
+type TabId = "basic" | "prompts" | "lorebook" | "generation" | "meta";
 
 interface CharacterEditorProps {
   character: Character;
@@ -29,6 +30,7 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "basic", label: "Basic" },
   { id: "prompts", label: "Prompt Engineering" },
   { id: "lorebook", label: "Lorebook" },
+  { id: "generation", label: "Generation" },
   { id: "meta", label: "Meta" },
 ];
 
@@ -146,6 +148,9 @@ export function CharacterEditor({
             onAttach={onAttachLorebook}
             onDetach={onDetachLorebook}
           />
+        )}
+        {activeTab === "generation" && (
+          <GenerationTab character={merged} onChange={handleChange} />
         )}
         {activeTab === "meta" && (
           <MetaTab character={merged} onChange={handleChange} />

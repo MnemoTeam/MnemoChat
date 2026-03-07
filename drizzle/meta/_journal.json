@@ -64,6 +64,13 @@
       "when": 1772825000000,
       "tag": "0008_chat_branching",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "6",
+      "when": 1772826000000,
+      "tag": "0009_character_gen_overrides",
+      "breakpoints": true
     }
   ]
 }

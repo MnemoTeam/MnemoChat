@@ -5,6 +5,17 @@ export type InsertionPosition = "before_character" | "after_character" | "before
 export type LorebookLogic = "AND_ANY" | "AND_ALL" | "NOT_ANY" | "NOT_ALL";
 export type SortOption = "name" | "created" | "lastChatted" | "tokenCount";
 
+export interface CharacterGenerationOverrides {
+  temperature?: number | null;
+  topP?: number | null;
+  topPEnabled?: boolean;
+  topK?: number | null;
+  topKEnabled?: boolean;
+  repetitionPenalty?: number | null;
+  maxNewTokens?: number | null;
+  stopSequences?: string[];
+}
+
 export interface Character {
   id: string;
   name: string;
@@ -30,6 +41,7 @@ export interface Character {
   tokenCount: number;
   internalNotes: string | null;
   lorebookEntryCount?: number;
+  generationOverrides?: CharacterGenerationOverrides | null;
 }
 
 export interface LorebookEntry {

@@ -403,6 +403,23 @@ export async function generateRoutes(app: FastifyInstance) {
           };
         }
 
+        // Merge per-character generation overrides on top of the preset
+        if (presetParams && char.generationOverrides) {
+          try {
+            const ov = JSON.parse(char.generationOverrides as string);
+            presetParams = {
+              temperature: ov.temperature ?? presetParams.temperature,
+              topP: ov.topP ?? presetParams.topP,
+              topPEnabled: ov.topPEnabled ?? presetParams.topPEnabled,
+              topK: ov.topK ?? presetParams.topK,
+              topKEnabled: ov.topKEnabled ?? presetParams.topKEnabled,
+              repetitionPenalty: ov.repetitionPenalty ?? presetParams.repetitionPenalty,
+              maxNewTokens: ov.maxNewTokens ?? presetParams.maxNewTokens,
+              stopSequences: ov.stopSequences ?? presetParams.stopSequences,
+            };
+          } catch { /* invalid JSON — ignore overrides */ }
+        }
+
         // Dispatch to the correct provider
         const providerType = (connection.type as ProviderType) || "ollama";
         const startTime = Date.now();

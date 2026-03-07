@@ -34,6 +34,7 @@ export async function characterRoutes(app: FastifyInstance) {
       alternateGreetings: JSON.parse(row.alternateGreetings || "[]"),
       exampleDialogues: JSON.parse(row.exampleDialogues || "[]"),
       tags: JSON.parse(row.tags || "[]"),
+      generationOverrides: row.generationOverrides ? JSON.parse(row.generationOverrides) : null,
       lorebookEntryCount: countMap.get(row.id) || 0,
     }));
   });
@@ -62,6 +63,7 @@ export async function characterRoutes(app: FastifyInstance) {
         alternateGreetings: JSON.parse(row.alternateGreetings || "[]"),
         exampleDialogues: JSON.parse(row.exampleDialogues || "[]"),
         tags: JSON.parse(row.tags || "[]"),
+        generationOverrides: row.generationOverrides ? JSON.parse(row.generationOverrides) : null,
         lorebookEntryCount: count?.count || 0,
       };
     }
@@ -99,6 +101,7 @@ export async function characterRoutes(app: FastifyInstance) {
       internalNotes: (body.internalNotes as string) || null,
       source: (body.source as string) || "local",
       communityRefJson: (body.communityRefJson as string) || null,
+      generationOverrides: body.generationOverrides ? JSON.stringify(body.generationOverrides) : null,
     };
 
     await db.insert(characters).values(record);
@@ -108,6 +111,7 @@ export async function characterRoutes(app: FastifyInstance) {
       alternateGreetings: JSON.parse(record.alternateGreetings),
       exampleDialogues: JSON.parse(record.exampleDialogues),
       tags: JSON.parse(record.tags),
+      generationOverrides: record.generationOverrides ? JSON.parse(record.generationOverrides) : null,
       lorebookEntryCount: 0,
     };
   });
@@ -120,7 +124,7 @@ export async function characterRoutes(app: FastifyInstance) {
       const body = request.body as Record<string, unknown>;
 
       const updates: Record<string, unknown> = {};
-      const jsonFields = ["alternateGreetings", "exampleDialogues", "tags"];
+      const jsonFields = ["alternateGreetings", "exampleDialogues", "tags", "generationOverrides"];
       const textFields = [
         "name", "portraitUrl", "description", "personality", "scenario",
         "firstMessage", "systemPrompt", "postHistoryInstructions",
@@ -156,6 +160,7 @@ export async function characterRoutes(app: FastifyInstance) {
         alternateGreetings: JSON.parse(row.alternateGreetings || "[]"),
         exampleDialogues: JSON.parse(row.exampleDialogues || "[]"),
         tags: JSON.parse(row.tags || "[]"),
+        generationOverrides: row.generationOverrides ? JSON.parse(row.generationOverrides) : null,
       };
     }
   );
@@ -224,6 +229,7 @@ export async function characterRoutes(app: FastifyInstance) {
         alternateGreetings: JSON.parse(row!.alternateGreetings || "[]"),
         exampleDialogues: JSON.parse(row!.exampleDialogues || "[]"),
         tags: JSON.parse(row!.tags || "[]"),
+        generationOverrides: row!.generationOverrides ? JSON.parse(row!.generationOverrides) : null,
         lorebookEntryCount: entries.length,
       };
     }
