@@ -52,6 +52,26 @@ export async function setSetting(
   return json(res);
 }
 
+// Quick Replies (global)
+
+export async function getGlobalQuickReplies(): Promise<
+  import("@shared/character-types").QuickReply[]
+> {
+  const setting = await getSetting("quick_replies");
+  if (!setting) return [];
+  try {
+    return JSON.parse(setting.value);
+  } catch {
+    return [];
+  }
+}
+
+export async function setGlobalQuickReplies(
+  replies: import("@shared/character-types").QuickReply[]
+): Promise<void> {
+  await setSetting("quick_replies", JSON.stringify(replies));
+}
+
 // Connections
 type DbProfile = Omit<ConnectionProfile, "isActive"> & { isActive: number };
 

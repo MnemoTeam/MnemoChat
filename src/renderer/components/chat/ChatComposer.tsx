@@ -8,9 +8,12 @@ import {
   ChevronDown,
   ChevronUp,
   Hash,
+  Zap,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { InputMode, SceneDirection } from '@shared/chat-types'
+import type { QuickReply } from '@shared/character-types'
+import { QuickReplyPopover } from './QuickReplyPopover'
 
 interface ChatComposerProps {
   inputMode: InputMode
@@ -22,6 +25,7 @@ interface ChatComposerProps {
   onUpdateSceneDirection?: (text: string) => void
   onSetInjectionDepth?: (depth: number) => void
   onToggleSceneDirection?: (enabled: boolean) => void
+  quickReplies?: { character: QuickReply[]; global: QuickReply[] }
 }
 
 const modes: { id: InputMode; label: string; icon: typeof MessageSquare; description: string }[] = [
@@ -40,10 +44,14 @@ export function ChatComposer({
   onUpdateSceneDirection,
   onSetInjectionDepth,
   onToggleSceneDirection,
+  quickReplies,
 }: ChatComposerProps) {
   const [message, setMessage] = useState('')
   const [sceneExpanded, setSceneExpanded] = useState(false)
   const [showModeMenu, setShowModeMenu] = useState(false)
+  const [showQuickReplies, setShowQuickReplies] = useState(false)
+
+  const hasQuickReplies = (quickReplies?.character?.length ?? 0) > 0 || (quickReplies?.global?.length ?? 0) > 0
 
   const activeMode = modes.find((m) => m.id === inputMode) || modes[0]
   const ActiveIcon = activeMode.icon
@@ -196,6 +204,35 @@ export function ChatComposer({
             </>
           )}
         </div>
+
+        {/* Quick replies */}
+        {hasQuickReplies && (
+          <div className="relative mb-1">
+            <button
+              onClick={() => setShowQuickReplies(!showQuickReplies)}
+              className={cn(
+                'flex h-[38px] w-[38px] items-center justify-center rounded-lg transition-colors',
+                showQuickReplies
+                  ? 'bg-indigo-500/15 text-indigo-400'
+                  : 'text-zinc-500 hover:bg-zinc-800 hover:text-zinc-300'
+              )}
+              title="Quick replies"
+            >
+              <Zap className="h-4 w-4" />
+            </button>
+            {showQuickReplies && (
+              <QuickReplyPopover
+                characterReplies={quickReplies?.character ?? []}
+                globalReplies={quickReplies?.global ?? []}
+                onSelect={(content) => {
+                  onSendMessage?.(content, inputMode)
+                  setShowQuickReplies(false)
+                }}
+                onClose={() => setShowQuickReplies(false)}
+              />
+            )}
+          </div>
+        )}
 
         {/* Input */}
         <div className="relative min-w-0 flex-1">

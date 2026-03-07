@@ -195,6 +195,59 @@ export function BasicTab({ character, onChange }: BasicTabProps) {
           + Add greeting
         </button>
       </div>
+
+      {/* Quick Replies */}
+      <div>
+        <label className="mb-1 block text-sm font-medium text-zinc-300">
+          Quick Replies
+        </label>
+        <p className="mb-2 text-xs text-zinc-500">
+          Shortcut buttons shown in the chat composer. Click to send instantly.
+        </p>
+        {(character.quickReplies ?? []).map((qr, i) => (
+          <div key={i} className="mb-2 flex gap-2">
+            <input
+              value={qr.label}
+              onChange={(e) => {
+                const updated = [...(character.quickReplies ?? [])];
+                updated[i] = { ...updated[i], label: e.target.value };
+                onChange({ quickReplies: updated });
+              }}
+              placeholder="Button label"
+              className="w-32 shrink-0 rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:border-indigo-500 focus:outline-none"
+            />
+            <input
+              value={qr.content}
+              onChange={(e) => {
+                const updated = [...(character.quickReplies ?? [])];
+                updated[i] = { ...updated[i], content: e.target.value };
+                onChange({ quickReplies: updated });
+              }}
+              placeholder="Message content (sent on click)"
+              className="flex-1 rounded-md border border-zinc-700 bg-zinc-800 px-3 py-2 text-sm text-zinc-200 placeholder:text-zinc-600 focus:border-indigo-500 focus:outline-none"
+            />
+            <button
+              onClick={() => {
+                const updated = (character.quickReplies ?? []).filter((_, j) => j !== i);
+                onChange({ quickReplies: updated });
+              }}
+              className="self-start rounded px-2 py-2 text-sm text-red-400 hover:bg-red-900/20"
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+        <button
+          onClick={() =>
+            onChange({
+              quickReplies: [...(character.quickReplies ?? []), { label: "", content: "" }],
+            })
+          }
+          className="text-sm text-indigo-400 hover:text-indigo-300"
+        >
+          + Add quick reply
+        </button>
+      </div>
     </div>
   );
 }

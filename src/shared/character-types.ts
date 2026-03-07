@@ -1,5 +1,10 @@
 import type { ContentTier } from "./types";
 
+export interface QuickReply {
+  label: string;
+  content: string;
+}
+
 export type SpecVersion = "v1" | "v2";
 export type InsertionPosition = "before_character" | "after_character" | "before_example" | "after_example";
 export type LorebookLogic = "AND_ANY" | "AND_ALL" | "NOT_ANY" | "NOT_ALL";
@@ -44,6 +49,7 @@ export interface Character {
   generationOverrides?: CharacterGenerationOverrides | null;
   authorNote?: string | null;
   authorNoteDepth?: number;
+  quickReplies?: QuickReply[] | null;
 }
 
 export interface LorebookEntry {
