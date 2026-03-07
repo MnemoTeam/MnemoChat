@@ -269,6 +269,8 @@ export interface ChatRoleplayProps {
   // Branching
   /** Branch info for the current active branch path */
   branchInfo?: BranchInfo | null
+  /** Whether the user just set a branch point (awaiting their message to fork) */
+  branchPointActive?: boolean
   /** Called when user creates a branch from a message */
   onBranchCreate?: (messageId: string) => void
   /** Called when user navigates between sibling branches */

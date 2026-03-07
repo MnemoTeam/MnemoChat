@@ -91,6 +91,7 @@ export function ChatPage() {
   const abortRef = useRef<AbortController | null>(null);
 
   const [branchInfo, setBranchInfo] = useState<BranchInfo | null>(null);
+  const [branchPointActive, setBranchPointActive] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [generationError, setGenerationError] = useState<string | null>(null);
@@ -264,16 +265,24 @@ export function ChatPage() {
 
     if (mode !== "continue") {
       const role = mode === "narrate" ? "system" : "user";
-      await createMessage(chat.id, {
-        role,
-        content,
-        isSystemMessage: mode === "narrate",
-      });
+
+      if (branchPointActive) {
+        // We're at a branch point — use createBranch to properly fork with correct branchPosition
+        const lastMsg = messages[messages.length - 1];
+        await createBranch(chat.id, lastMsg.id, { role, content });
+      } else {
+        await createMessage(chat.id, {
+          role,
+          content,
+          isSystemMessage: mode === "narrate",
+        });
+      }
+      setBranchPointActive(false);
       await refreshMessages();
     }
 
     triggerGeneration(chat.id, mode, pendingCharacterId ?? chat.characterId);
-  }, [chat, refreshMessages, triggerGeneration, pendingCharacterId]);
+  }, [chat, messages, branchPointActive, refreshMessages, triggerGeneration, pendingCharacterId]);
 
   const onEditMessage = useCallback(async (messageId: string, newContent: string) => {
     if (!chat) return;
@@ -324,9 +333,13 @@ export function ChatPage() {
   // Branch callbacks
   const onBranchCreate = useCallback(async (messageId: string) => {
     if (!chat) return;
-    await createBranch(chat.id, messageId);
-    await refreshMessages();
-  }, [chat, refreshMessages]);
+    // Set this message as the active leaf — the chat truncates here.
+    // The fork happens when the user sends their next message.
+    const result = await switchBranch(chat.id, messageId);
+    setMessages(result.messages);
+    setBranchInfo(result.branchInfo);
+    setBranchPointActive(true);
+  }, [chat]);
 
   const onBranchNavigate = useCallback(async (messageId: string, direction: "prev" | "next") => {
     if (!chat || !branchInfo) return;
@@ -609,6 +622,7 @@ export function ChatPage() {
       onOpenCharacterEditor={onOpenCharacterEditor}
       onExportChat={onExportChat}
       branchInfo={branchInfo}
+      branchPointActive={branchPointActive}
       onBranchCreate={onBranchCreate}
       onBranchNavigate={onBranchNavigate}
       onBranchSwitch={onBranchSwitch}

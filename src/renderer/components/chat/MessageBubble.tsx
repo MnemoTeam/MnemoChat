@@ -31,6 +31,7 @@ interface MessageBubbleProps {
   onBranchNavigate?: (messageId: string, direction: 'prev' | 'next') => void
   siblingCount?: number
   siblingIndex?: number
+  isLastMessage?: boolean
 }
 
 
@@ -50,6 +51,7 @@ export function MessageBubble({
   onBranchNavigate,
   siblingCount,
   siblingIndex,
+  isLastMessage,
 }: MessageBubbleProps) {
   const [hovered, setHovered] = useState(false)
   const [editing, setEditing] = useState(false)
@@ -224,13 +226,15 @@ export function MessageBubble({
               >
                 <RefreshCw className="h-3.5 w-3.5" />
               </button>
-              <button
-                onClick={() => onBranch?.(message.id)}
-                className="rounded p-1.5 text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
-                title="Create branch from here"
-              >
-                <GitBranch className="h-3.5 w-3.5" />
-              </button>
+              {!isLastMessage && (
+                <button
+                  onClick={() => onBranch?.(message.id)}
+                  className="rounded p-1.5 text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
+                  title="Create branch from here"
+                >
+                  <GitBranch className="h-3.5 w-3.5" />
+                </button>
+              )}
               <button
                 onClick={() =>
                   message.bookmark
@@ -320,13 +324,6 @@ export function MessageBubble({
                 title="Regenerate AI response"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
-              </button>
-              <button
-                onClick={() => onBranch?.(message.id)}
-                className="rounded p-1.5 text-zinc-400 transition-colors hover:bg-zinc-700 hover:text-zinc-200"
-                title="Create branch from here"
-              >
-                <GitBranch className="h-3.5 w-3.5" />
               </button>
               <button
                 onClick={() =>
