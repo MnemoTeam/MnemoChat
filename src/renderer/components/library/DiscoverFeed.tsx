@@ -230,7 +230,7 @@ export function DiscoverFeed({
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [account, setAccount] = useState<AccountInfo | null>(null)
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>()
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   // Load account status on mount
   useEffect(() => {
