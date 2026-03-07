@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import type { Message, BookmarkColor } from '@shared/chat-types'
+import { MarkdownContent } from './MarkdownContent'
 
 interface MessageBubbleProps {
   message: Message
@@ -26,34 +27,6 @@ interface MessageBubbleProps {
   onRemoveBookmark?: (bookmarkId: string) => void
 }
 
-function renderContent(text: string): React.ReactNode[] {
-  // Split on *asterisk blocks* and render them as italic/dimmed
-  const parts = text.split(/(\*[^*]+\*)/g)
-  return parts.map((part, i) => {
-    if (part.startsWith('*') && part.endsWith('*')) {
-      return (
-        <em key={i} className="not-italic text-zinc-400" style={{ fontStyle: 'italic' }}>
-          {part.slice(1, -1)}
-        </em>
-      )
-    }
-    // Handle "quoted dialogue" — render in standard weight
-    const quoteParts = part.split(/("[^"]*")/g)
-    if (quoteParts.length > 1) {
-      return quoteParts.map((qp, qi) => {
-        if (qp.startsWith('"') && qp.endsWith('"')) {
-          return (
-            <span key={`${i}-${qi}`} className="text-zinc-100">
-              {qp}
-            </span>
-          )
-        }
-        return <span key={`${i}-${qi}`}>{qp}</span>
-      })
-    }
-    return <span key={i}>{part}</span>
-  })
-}
 
 export function MessageBubble({
   message,
@@ -172,10 +145,8 @@ export function MessageBubble({
                   </div>
                 </div>
               ) : (
-                <div className="border-l-2 border-indigo-500/30 pl-4">
-                  <p className="whitespace-pre-wrap text-sm leading-[1.75] text-zinc-300">
-                    {renderContent(message.content)}
-                  </p>
+                <div className="border-l-2 border-indigo-500/30 pl-4 text-zinc-300">
+                  <MarkdownContent content={message.content} />
                 </div>
               )}
 
@@ -290,10 +261,8 @@ export function MessageBubble({
               </div>
             </div>
           ) : (
-            <div className="rounded-2xl rounded-br-md bg-zinc-800/60 px-4 py-3">
-              <p className="whitespace-pre-wrap text-sm leading-[1.7] text-zinc-300">
-                {renderContent(message.content)}
-              </p>
+            <div className="rounded-2xl rounded-br-md bg-zinc-800/60 px-4 py-3 text-zinc-300">
+              <MarkdownContent content={message.content} />
             </div>
           )}
 
