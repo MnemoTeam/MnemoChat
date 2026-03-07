@@ -1,3 +1,5 @@
+import type { QuickReply } from './character-types'
+
 /** Message author role */
 export type MessageRole = 'user' | 'assistant' | 'system'
 
@@ -195,6 +197,7 @@ export interface ChatRoleplayProps {
   bookmarks: Bookmark[]
   inputMode: InputMode
   availableModels: AvailableModel[]
+  quickReplies?: { character: QuickReply[]; global: QuickReply[] }
 
   // Generation control
   /** Called to stop an in-progress generation */

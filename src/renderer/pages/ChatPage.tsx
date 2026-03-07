@@ -34,9 +34,12 @@ import {
   getBranches,
   deleteBranch,
   updateChatCharacter,
+  getCharacter,
+  getGlobalQuickReplies,
 } from "@/lib/api";
 import { getSiblingLeafId } from "@/lib/branch-utils";
 import { pickNextCharacter } from "@/lib/group-utils";
+import type { QuickReply } from "@shared/character-types";
 import type {
   Chat,
   ChatListItem,
@@ -95,6 +98,7 @@ export function ChatPage() {
   const autoContinueRef = useRef(false);
   const stoppedByUserRef = useRef(false);
 
+  const [quickReplies, setQuickReplies] = useState<{ character: QuickReply[]; global: QuickReply[] }>({ character: [], global: [] });
   const [branchInfo, setBranchInfo] = useState<BranchInfo | null>(null);
   const [branchPointActive, setBranchPointActive] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -103,12 +107,13 @@ export function ChatPage() {
 
   const loadChatData = useCallback(async (id: string) => {
     try {
-      const [chatData, msgResult, bms, scene, budget] = await Promise.all([
+      const [chatData, msgResult, bms, scene, budget, globalQr] = await Promise.all([
         getChat(id),
         getMessages(id),
         getChatBookmarks(id),
         getSceneDirection(id),
         getTokenBudget(id),
+        getGlobalQuickReplies(),
       ]);
       // Ensure characters array is always populated
       const chatWithChars = {
@@ -125,6 +130,10 @@ export function ChatPage() {
       setSceneDirection(scene);
       setTokenBudget(budget);
       setError(null);
+      // Load character quick replies
+      getCharacter(chatData.characterId)
+        .then((char) => setQuickReplies({ character: char.quickReplies ?? [], global: globalQr }))
+        .catch(() => setQuickReplies({ character: [], global: globalQr }));
       // Default pending character to primary
       setPendingCharacterId((prev) => prev ?? chatData.characterId);
     } catch (e) {
@@ -670,6 +679,7 @@ export function ChatPage() {
       allCharacters={allCharacters}
       onAddCharacter={onAddCharacter}
       onRemoveCharacter={onRemoveCharacter}
+      quickReplies={quickReplies}
     />
     </>
   );

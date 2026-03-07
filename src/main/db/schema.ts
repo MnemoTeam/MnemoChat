@@ -48,6 +48,7 @@ export const characters = sqliteTable("characters", {
   generationOverrides: text("generation_overrides"),
   authorNote: text("author_note"),
   authorNoteDepth: integer("author_note_depth").default(4),
+  quickReplies: text("quick_replies"),
 });
 
 export const chats = sqliteTable("chats", {

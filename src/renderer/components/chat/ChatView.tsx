@@ -77,6 +77,7 @@ export function ChatView({
   allCharacters,
   onAddCharacter,
   onRemoveCharacter,
+  quickReplies,
 }: ChatRoleplayProps) {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [branchPanelOpen, setBranchPanelOpen] = useState(false)
@@ -539,6 +540,7 @@ export function ChatView({
             onUpdateSceneDirection={onUpdateSceneDirection}
             onSetInjectionDepth={onSetInjectionDepth}
             onToggleSceneDirection={onToggleSceneDirection}
+            quickReplies={quickReplies}
           />
         </div>
 

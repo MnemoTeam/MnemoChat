@@ -1,0 +1,1 @@
+ALTER TABLE characters ADD COLUMN quick_replies TEXT DEFAULT NULL;
