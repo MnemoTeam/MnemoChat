@@ -71,6 +71,8 @@ export function ChatView({
   pendingCharacterId,
   generatingCharacter,
   onSelectCharacter,
+  onTalkativenessChange,
+  onReplyStrategyChange,
   allCharacters,
   onAddCharacter,
   onRemoveCharacter,
@@ -516,7 +518,10 @@ export function ChatView({
               characters={chat.characters}
               pendingCharacterId={pendingCharacterId}
               isGenerating={!!isGenerating}
+              replyStrategy={chat.replyStrategy ?? 'round_robin'}
               onSelectCharacter={onSelectCharacter}
+              onTalkativenessChange={onTalkativenessChange}
+              onReplyStrategyChange={onReplyStrategyChange}
             />
           )}
 

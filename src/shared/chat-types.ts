@@ -13,6 +13,9 @@ export type ExportFormat = 'txt' | 'md' | 'json'
 /** Chat export scope */
 export type ExportScope = 'full' | 'bookmarks' | 'raw'
 
+/** Group chat reply strategy */
+export type ReplyStrategy = 'round_robin' | 'random' | 'weighted_random'
+
 // ---------------------------------------------------------------------------
 // Data interfaces
 // ---------------------------------------------------------------------------
@@ -94,6 +97,7 @@ export interface ChatCharacter {
   id: string
   name: string
   portraitUrl: string
+  talkativeness: number
 }
 
 export interface Chat {
@@ -116,6 +120,8 @@ export interface Chat {
   characters: ChatCharacter[]
   /** ID of the leaf message on the currently active branch */
   activeLeafId?: string | null
+  /** Group chat reply strategy */
+  replyStrategy: ReplyStrategy
 }
 
 export interface ChatListItem {
@@ -265,6 +271,10 @@ export interface ChatRoleplayProps {
   generatingCharacter?: ChatCharacter
   /** Called when user selects a character to speak next */
   onSelectCharacter?: (characterId: string) => void
+  /** Called when user changes a character's talkativeness */
+  onTalkativenessChange?: (characterId: string, value: number) => void
+  /** Called when user changes the group reply strategy */
+  onReplyStrategyChange?: (strategy: ReplyStrategy) => void
 
   // Branching
   /** Branch info for the current active branch path */
