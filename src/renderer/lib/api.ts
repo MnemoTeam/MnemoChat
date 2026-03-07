@@ -248,7 +248,7 @@ export async function removeChatCharacter(chatId: string, characterId: string): 
 
 export async function updateChat(
   id: string,
-  updates: Partial<Pick<Chat, "title" | "tags" | "modelId" | "modelName" | "personaName" | "replyStrategy">>
+  updates: Partial<Pick<Chat, "title" | "tags" | "modelId" | "modelName" | "personaName" | "replyStrategy" | "autoContinue">>
 ): Promise<void> {
   await fetch(`${API_BASE}/api/chats/${id}`, {
     method: "PUT",

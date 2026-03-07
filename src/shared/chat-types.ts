@@ -122,6 +122,8 @@ export interface Chat {
   activeLeafId?: string | null
   /** Group chat reply strategy */
   replyStrategy: ReplyStrategy
+  /** Whether auto-continue is enabled for group chats */
+  autoContinue: boolean
 }
 
 export interface ChatListItem {
@@ -275,6 +277,8 @@ export interface ChatRoleplayProps {
   onTalkativenessChange?: (characterId: string, value: number) => void
   /** Called when user changes the group reply strategy */
   onReplyStrategyChange?: (strategy: ReplyStrategy) => void
+  /** Called when user toggles auto-continue */
+  onAutoContinueChange?: (enabled: boolean) => void
 
   // Branching
   /** Branch info for the current active branch path */

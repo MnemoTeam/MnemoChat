@@ -73,6 +73,7 @@ export function ChatView({
   onSelectCharacter,
   onTalkativenessChange,
   onReplyStrategyChange,
+  onAutoContinueChange,
   allCharacters,
   onAddCharacter,
   onRemoveCharacter,
@@ -522,6 +523,8 @@ export function ChatView({
               onSelectCharacter={onSelectCharacter}
               onTalkativenessChange={onTalkativenessChange}
               onReplyStrategyChange={onReplyStrategyChange}
+              autoContinue={chat.autoContinue ?? false}
+              onAutoContinueChange={onAutoContinueChange}
             />
           )}
 

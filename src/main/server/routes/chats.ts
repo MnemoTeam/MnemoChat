@@ -110,6 +110,7 @@ export async function chatRoutes(app: FastifyInstance) {
         tags: chats.tags,
         activeLeafId: chats.activeLeafId,
         replyStrategy: chats.replyStrategy,
+        autoContinue: chats.autoContinue,
       })
       .from(chats)
       .leftJoin(characters, eq(chats.characterId, characters.id))
@@ -125,6 +126,7 @@ export async function chatRoutes(app: FastifyInstance) {
       characterTags: JSON.parse((row.characterTags as string) || "[]"),
       tags: JSON.parse((row.tags as string) || "[]"),
       lastMessageAt: row.lastMessageAt || "",
+      autoContinue: !!row.autoContinue,
       characters: getChatCharacters(id),
     };
   });
@@ -233,6 +235,7 @@ export async function chatRoutes(app: FastifyInstance) {
         tags: chats.tags,
         activeLeafId: chats.activeLeafId,
         replyStrategy: chats.replyStrategy,
+        autoContinue: chats.autoContinue,
       })
       .from(chats)
       .leftJoin(characters, eq(chats.characterId, characters.id))
@@ -246,6 +249,7 @@ export async function chatRoutes(app: FastifyInstance) {
       characterTags: JSON.parse((chat!.characterTags as string) || "[]"),
       tags: JSON.parse((chat!.tags as string) || "[]"),
       lastMessageAt: chat!.lastMessageAt || "",
+      autoContinue: !!chat!.autoContinue,
       characters: getChatCharacters(id),
     };
   });
@@ -262,6 +266,7 @@ export async function chatRoutes(app: FastifyInstance) {
     if ("tags" in body) updates.tags = JSON.stringify(body.tags);
     if ("personaName" in body) updates.personaName = body.personaName;
     if ("replyStrategy" in body) updates.replyStrategy = body.replyStrategy;
+    if ("autoContinue" in body) updates.autoContinue = body.autoContinue ? 1 : 0;
 
     if (Object.keys(updates).length === 0) {
       return reply.status(400).send({ error: "No fields to update" });

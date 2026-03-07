@@ -67,6 +67,8 @@ export const chats = sqliteTable("chats", {
   activeLeafId: text("active_leaf_id"),
   /** Group chat reply strategy: round_robin | random | weighted_random */
   replyStrategy: text("reply_strategy").notNull().default("round_robin"),
+  /** Whether auto-continue is enabled for group chats */
+  autoContinue: integer("auto_continue").notNull().default(0),
 });
 
 export const messages = sqliteTable("messages", {

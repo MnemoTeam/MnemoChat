@@ -10,6 +10,8 @@ interface GroupCharacterStripProps {
   onSelectCharacter: (characterId: string) => void
   onTalkativenessChange?: (characterId: string, value: number) => void
   onReplyStrategyChange?: (strategy: ReplyStrategy) => void
+  autoContinue: boolean
+  onAutoContinueChange?: (enabled: boolean) => void
 }
 
 const STRATEGY_LABELS: Record<ReplyStrategy, string> = {
@@ -26,6 +28,8 @@ export function GroupCharacterStrip({
   onSelectCharacter,
   onTalkativenessChange,
   onReplyStrategyChange,
+  autoContinue,
+  onAutoContinueChange,
 }: GroupCharacterStripProps) {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const debounceTimers = useRef<Map<string, ReturnType<typeof setTimeout>>>(new Map())
@@ -46,6 +50,11 @@ export function GroupCharacterStrip({
         <span className="shrink-0 text-[10px] font-medium uppercase tracking-widest text-zinc-600">
           Speaks next
         </span>
+        {autoContinue && (
+          <span className="shrink-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-400 ring-1 ring-emerald-500/30 animate-pulse">
+            Auto
+          </span>
+        )}
         <div className="flex flex-wrap gap-1.5">
           {characters.map((char) => {
             const isSelected = char.id === pendingCharacterId
@@ -125,6 +134,30 @@ export function GroupCharacterStrip({
                 </button>
               ))}
             </div>
+          </div>
+
+          {/* Auto-continue toggle */}
+          <div className="flex items-center gap-3">
+            <span className="text-[10px] font-medium uppercase tracking-widest text-zinc-600 shrink-0">
+              Auto-Continue
+            </span>
+            <button
+              onClick={() => onAutoContinueChange?.(!autoContinue)}
+              className={cn(
+                'relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors',
+                autoContinue ? 'bg-emerald-500' : 'bg-zinc-700'
+              )}
+            >
+              <span
+                className={cn(
+                  'inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform',
+                  autoContinue ? 'translate-x-[18px]' : 'translate-x-[3px]'
+                )}
+              />
+            </button>
+            <span className="text-[11px] text-zinc-500">
+              Characters respond automatically
+            </span>
           </div>
 
           {/* Talkativeness sliders — only shown for non-round-robin strategies */}
