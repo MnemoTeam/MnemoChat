@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Plus, Trash2, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { LorebookEntry, InsertionPosition } from "@shared/character-types";
+import type { LorebookEntry, InsertionPosition, LorebookLogic } from "@shared/character-types";
 
 interface LorebookTabProps {
   entries: LorebookEntry[];
@@ -16,6 +16,13 @@ const INSERTION_OPTIONS: { value: InsertionPosition; label: string }[] = [
   { value: "after_character", label: "After Character" },
   { value: "before_example", label: "Before Examples" },
   { value: "after_example", label: "After Examples" },
+];
+
+const LOGIC_OPTIONS: { value: LorebookLogic; label: string }[] = [
+  { value: "AND_ANY", label: "Match any keyword" },
+  { value: "AND_ALL", label: "Match all keywords" },
+  { value: "NOT_ANY", label: "Exclude any keyword" },
+  { value: "NOT_ALL", label: "Exclude all keywords" },
 ];
 
 export function LorebookTab({
@@ -182,6 +189,65 @@ export function LorebookTab({
                           min={0}
                           max={100}
                           className="w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-zinc-200 focus:border-indigo-500 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-4">
+                      <div className="flex-1">
+                        <label className="mb-1 block text-xs font-medium text-zinc-400">
+                          Trigger Logic
+                        </label>
+                        <select
+                          value={entry.logic}
+                          onChange={(e) =>
+                            onUpdate(entry.id, {
+                              logic: e.target.value as LorebookLogic,
+                            })
+                          }
+                          className="w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-zinc-300 focus:border-indigo-500 focus:outline-none"
+                        >
+                          {LOGIC_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="w-28">
+                        <label className="mb-1 block text-xs font-medium text-zinc-400">
+                          Probability %
+                        </label>
+                        <input
+                          type="number"
+                          value={entry.probability}
+                          onChange={(e) =>
+                            onUpdate(entry.id, {
+                              probability: Math.min(100, Math.max(0, parseInt(e.target.value) || 0)),
+                            })
+                          }
+                          min={0}
+                          max={100}
+                          className="w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-zinc-200 focus:border-indigo-500 focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="w-28">
+                        <label className="mb-1 block text-xs font-medium text-zinc-400">
+                          Scan Depth
+                        </label>
+                        <input
+                          type="number"
+                          value={entry.scanDepth}
+                          onChange={(e) =>
+                            onUpdate(entry.id, {
+                              scanDepth: Math.max(0, parseInt(e.target.value) || 0),
+                            })
+                          }
+                          min={0}
+                          placeholder="0 = all"
+                          className="w-full rounded-md border border-zinc-700 bg-zinc-800 px-3 py-1.5 text-sm text-zinc-200 placeholder-zinc-600 focus:border-indigo-500 focus:outline-none"
                         />
                       </div>
                     </div>
