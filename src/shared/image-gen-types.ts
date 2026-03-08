@@ -96,17 +96,19 @@ export const STABILITY_MODELS = [
 ] as const;
 export type StabilityModel = (typeof STABILITY_MODELS)[number];
 
-/** Common resolution presets */
+/** Common resolution presets (portrait ratio ≈ 0.684, centered on 832×1216) */
 export const IMAGE_RESOLUTIONS = [
-  { label: "512 × 512", width: 512, height: 512 },
   { label: "512 × 768", width: 512, height: 768 },
+  { label: "640 × 960", width: 640, height: 960 },
+  { label: "832 × 1216", width: 832, height: 1216 },
+  { label: "1024 × 1536", width: 1024, height: 1536 },
   { label: "768 × 512", width: 768, height: 512 },
+  { label: "960 × 640", width: 960, height: 640 },
+  { label: "1216 × 832", width: 1216, height: 832 },
+  { label: "1536 × 1024", width: 1536, height: 1024 },
+  { label: "512 × 512", width: 512, height: 512 },
   { label: "768 × 768", width: 768, height: 768 },
   { label: "1024 × 1024", width: 1024, height: 1024 },
-  { label: "1024 × 768", width: 1024, height: 768 },
-  { label: "768 × 1024", width: 768, height: 1024 },
-  { label: "1536 × 1024", width: 1536, height: 1024 },
-  { label: "1024 × 1536", width: 1024, height: 1536 },
 ] as const;
 
 /** Default settings for new configurations */
@@ -115,7 +117,7 @@ export const IMAGE_GEN_DEFAULTS: Required<
 > = {
   steps: 20,
   cfgScale: 7,
-  width: 512,
-  height: 512,
+  width: 832,
+  height: 1216,
   seed: -1,
 };

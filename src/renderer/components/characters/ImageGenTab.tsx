@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { ImageIcon, Loader2, Trash2, X, UserCircle, Copy } from "lucide-react";
 import type { Character } from "@shared/character-types";
 import type { ImageGenSettings, ImageGenResult } from "@shared/image-gen-types";
-import { IMAGE_GEN_DEFAULTS } from "@shared/image-gen-types";
+import { IMAGE_GEN_DEFAULTS, IMAGE_RESOLUTIONS } from "@shared/image-gen-types";
 import {
   generateImage,
   getGeneratedImageUrl,
@@ -168,41 +168,26 @@ export function ImageGenTab({ character, onChange }: ImageGenTabProps) {
             />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-[10px] text-zinc-500">Width</label>
+          <div className="col-span-2 space-y-1">
+            <label className="text-[10px] text-zinc-500">Resolution</label>
             <select
-              value={settings.width || ""}
-              onChange={(e) =>
-                handleSettingsChange({
-                  width: e.target.value ? parseInt(e.target.value, 10) : undefined,
-                })
-              }
+              value={settings.width && settings.height ? `${settings.width}x${settings.height}` : ""}
+              onChange={(e) => {
+                if (!e.target.value) {
+                  handleSettingsChange({ width: undefined, height: undefined });
+                } else {
+                  const res = IMAGE_RESOLUTIONS.find(
+                    (r) => `${r.width}x${r.height}` === e.target.value,
+                  );
+                  if (res) handleSettingsChange({ width: res.width, height: res.height });
+                }
+              }}
               className="w-full rounded border border-zinc-700 bg-zinc-800/50 px-2 py-1 text-xs text-zinc-200 outline-none"
             >
               <option value="">Default</option>
-              {[256, 512, 768, 1024, 1536].map((w) => (
-                <option key={w} value={w}>
-                  {w}px
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-1">
-            <label className="text-[10px] text-zinc-500">Height</label>
-            <select
-              value={settings.height || ""}
-              onChange={(e) =>
-                handleSettingsChange({
-                  height: e.target.value ? parseInt(e.target.value, 10) : undefined,
-                })
-              }
-              className="w-full rounded border border-zinc-700 bg-zinc-800/50 px-2 py-1 text-xs text-zinc-200 outline-none"
-            >
-              <option value="">Default</option>
-              {[256, 512, 768, 1024, 1536].map((h) => (
-                <option key={h} value={h}>
-                  {h}px
+              {IMAGE_RESOLUTIONS.map((r) => (
+                <option key={`${r.width}x${r.height}`} value={`${r.width}x${r.height}`}>
+                  {r.label}
                 </option>
               ))}
             </select>

@@ -5,7 +5,7 @@ import { Check, Loader2, Eye, EyeOff, ExternalLink, Volume2, ImageIcon } from "l
 import { cn } from "@/lib/utils";
 import type { TtsProviderType, TtsVoice } from "@shared/tts-types";
 import type { ImageGenProviderType } from "@shared/image-gen-types";
-import { IMAGE_GEN_PROVIDER_INFO, IMAGE_GEN_DEFAULTS } from "@shared/image-gen-types";
+import { IMAGE_GEN_PROVIDER_INFO, IMAGE_GEN_DEFAULTS, IMAGE_RESOLUTIONS } from "@shared/image-gen-types";
 
 function MnemoTokenSection() {
   const [token, setToken] = useState("");
@@ -577,28 +577,25 @@ function ImageGenSettingsSection() {
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="text-[10px] text-zinc-500">Width</label>
+            <div className="col-span-2 space-y-1">
+              <label className="text-[10px] text-zinc-500">Resolution</label>
               <select
-                value={width}
-                onChange={(e) => setWidth(parseInt(e.target.value, 10))}
+                value={`${width}x${height}`}
+                onChange={(e) => {
+                  const res = IMAGE_RESOLUTIONS.find(
+                    (r) => `${r.width}x${r.height}` === e.target.value,
+                  );
+                  if (res) {
+                    setWidth(res.width);
+                    setHeight(res.height);
+                  }
+                }}
                 className="w-full rounded border border-zinc-700 bg-zinc-800/50 px-2 py-1 text-xs text-zinc-200 outline-none"
               >
-                {[256, 512, 768, 1024, 1536].map((w) => (
-                  <option key={w} value={w}>{w}px</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-[10px] text-zinc-500">Height</label>
-              <select
-                value={height}
-                onChange={(e) => setHeight(parseInt(e.target.value, 10))}
-                className="w-full rounded border border-zinc-700 bg-zinc-800/50 px-2 py-1 text-xs text-zinc-200 outline-none"
-              >
-                {[256, 512, 768, 1024, 1536].map((h) => (
-                  <option key={h} value={h}>{h}px</option>
+                {IMAGE_RESOLUTIONS.map((r) => (
+                  <option key={`${r.width}x${r.height}`} value={`${r.width}x${r.height}`}>
+                    {r.label}
+                  </option>
                 ))}
               </select>
             </div>

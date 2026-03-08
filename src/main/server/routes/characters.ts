@@ -39,6 +39,7 @@ export async function characterRoutes(app: FastifyInstance) {
       quickReplies: row.quickReplies ? JSON.parse(row.quickReplies) : null,
       regexSubstitutions: row.regexSubstitutions ? JSON.parse(row.regexSubstitutions) : null,
       ttsSettings: row.ttsSettings ? JSON.parse(row.ttsSettings) : null,
+      imageGenSettings: row.imageGenSettings ? JSON.parse(row.imageGenSettings) : null,
       lorebookEntryCount: countMap.get(row.id) || 0,
     }));
   });
@@ -71,6 +72,7 @@ export async function characterRoutes(app: FastifyInstance) {
         quickReplies: row.quickReplies ? JSON.parse(row.quickReplies) : null,
         regexSubstitutions: row.regexSubstitutions ? JSON.parse(row.regexSubstitutions) : null,
       ttsSettings: row.ttsSettings ? JSON.parse(row.ttsSettings) : null,
+        imageGenSettings: row.imageGenSettings ? JSON.parse(row.imageGenSettings) : null,
         lorebookEntryCount: count?.count || 0,
       };
     }
@@ -116,6 +118,8 @@ export async function characterRoutes(app: FastifyInstance) {
       ttsProvider: (body.ttsProvider as string) || null,
       ttsVoice: (body.ttsVoice as string) || null,
       ttsSettings: body.ttsSettings ? JSON.stringify(body.ttsSettings) : null,
+      imageGenPromptPrefix: (body.imageGenPromptPrefix as string) || null,
+      imageGenSettings: body.imageGenSettings ? JSON.stringify(body.imageGenSettings) : null,
     };
 
     await db.insert(characters).values(record);
@@ -140,14 +144,14 @@ export async function characterRoutes(app: FastifyInstance) {
       const body = request.body as Record<string, unknown>;
 
       const updates: Record<string, unknown> = {};
-      const jsonFields = ["alternateGreetings", "exampleDialogues", "tags", "generationOverrides", "quickReplies", "regexSubstitutions", "ttsSettings"];
+      const jsonFields = ["alternateGreetings", "exampleDialogues", "tags", "generationOverrides", "quickReplies", "regexSubstitutions", "ttsSettings", "imageGenSettings"];
       const textFields = [
         "name", "portraitUrl", "description", "personality", "scenario",
         "firstMessage", "systemPrompt", "postHistoryInstructions",
         "creatorNotes", "contentTier", "creatorName", "characterVersion",
         "sourceUrl", "specVersion", "importDate", "lastChatted", "internalNotes",
         "source", "communityRefJson", "authorNote",
-        "ttsProvider", "ttsVoice",
+        "ttsProvider", "ttsVoice", "imageGenPromptPrefix",
       ];
 
       for (const field of textFields) {
@@ -182,6 +186,7 @@ export async function characterRoutes(app: FastifyInstance) {
         quickReplies: row.quickReplies ? JSON.parse(row.quickReplies) : null,
         regexSubstitutions: row.regexSubstitutions ? JSON.parse(row.regexSubstitutions) : null,
       ttsSettings: row.ttsSettings ? JSON.parse(row.ttsSettings) : null,
+        imageGenSettings: row.imageGenSettings ? JSON.parse(row.imageGenSettings) : null,
       };
     }
   );
@@ -255,6 +260,7 @@ export async function characterRoutes(app: FastifyInstance) {
         quickReplies: row!.quickReplies ? JSON.parse(row!.quickReplies) : null,
         regexSubstitutions: row!.regexSubstitutions ? JSON.parse(row!.regexSubstitutions) : null,
         ttsSettings: row!.ttsSettings ? JSON.parse(row!.ttsSettings) : null,
+        imageGenSettings: row!.imageGenSettings ? JSON.parse(row!.imageGenSettings) : null,
         lorebookEntryCount: entries.length,
       };
     }
