@@ -2,33 +2,95 @@ import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import { getSetting } from "@/lib/api";
 
-// English
-import enCommon from "./locales/en/common.json";
-import enSettings from "./locales/en/settings.json";
-import enChat from "./locales/en/chat.json";
-import enCharacters from "./locales/en/characters.json";
-import enDashboard from "./locales/en/dashboard.json";
-import enLibrary from "./locales/en/library.json";
-import enStory from "./locales/en/story.json";
-import enOnboarding from "./locales/en/onboarding.json";
+import en from "./locales/en";
+import es from "./locales/es";
+import fr from "./locales/fr";
+import de from "./locales/de";
+import it from "./locales/it";
+import pt from "./locales/pt";
+import nl from "./locales/nl";
+import pl from "./locales/pl";
+import cs from "./locales/cs";
+import sk from "./locales/sk";
+import hu from "./locales/hu";
+import ro from "./locales/ro";
+import bg from "./locales/bg";
+import hr from "./locales/hr";
+import sl from "./locales/sl";
+import sr from "./locales/sr";
+import uk from "./locales/uk";
+import ru from "./locales/ru";
+import et from "./locales/et";
+import lv from "./locales/lv";
+import lt from "./locales/lt";
+import fi from "./locales/fi";
+import sv from "./locales/sv";
+import da from "./locales/da";
+import nb from "./locales/nb";
+import is_ from "./locales/is";
+import el from "./locales/el";
+import tr from "./locales/tr";
+import ar from "./locales/ar";
+import he from "./locales/he";
+import hi from "./locales/hi";
+import th from "./locales/th";
+import vi from "./locales/vi";
+import id from "./locales/id";
+import ms from "./locales/ms";
+import zh from "./locales/zh";
+import ja from "./locales/ja";
+import ko from "./locales/ko";
 
-// Spanish
-import esCommon from "./locales/es/common.json";
-import esSettings from "./locales/es/settings.json";
-import esChat from "./locales/es/chat.json";
-import esCharacters from "./locales/es/characters.json";
-import esDashboard from "./locales/es/dashboard.json";
-import esLibrary from "./locales/es/library.json";
-import esStory from "./locales/es/story.json";
-import esOnboarding from "./locales/es/onboarding.json";
+const LANGUAGES = {
+  en: { label: "English", resources: en },
+  es: { label: "Español", resources: es },
+  fr: { label: "Français", resources: fr },
+  de: { label: "Deutsch", resources: de },
+  it: { label: "Italiano", resources: it },
+  pt: { label: "Português", resources: pt },
+  nl: { label: "Nederlands", resources: nl },
+  pl: { label: "Polski", resources: pl },
+  cs: { label: "Čeština", resources: cs },
+  sk: { label: "Slovenčina", resources: sk },
+  hu: { label: "Magyar", resources: hu },
+  ro: { label: "Română", resources: ro },
+  bg: { label: "Български", resources: bg },
+  hr: { label: "Hrvatski", resources: hr },
+  sl: { label: "Slovenščina", resources: sl },
+  sr: { label: "Српски", resources: sr },
+  uk: { label: "Українська", resources: uk },
+  ru: { label: "Русский", resources: ru },
+  et: { label: "Eesti", resources: et },
+  lv: { label: "Latviešu", resources: lv },
+  lt: { label: "Lietuvių", resources: lt },
+  fi: { label: "Suomi", resources: fi },
+  sv: { label: "Svenska", resources: sv },
+  da: { label: "Dansk", resources: da },
+  nb: { label: "Norsk", resources: nb },
+  is: { label: "Íslenska", resources: is_ },
+  el: { label: "Ελληνικά", resources: el },
+  tr: { label: "Türkçe", resources: tr },
+  ar: { label: "العربية", resources: ar },
+  he: { label: "עברית", resources: he },
+  hi: { label: "हिन्दी", resources: hi },
+  th: { label: "ไทย", resources: th },
+  vi: { label: "Tiếng Việt", resources: vi },
+  id: { label: "Bahasa Indonesia", resources: id },
+  ms: { label: "Bahasa Melayu", resources: ms },
+  zh: { label: "简体中文", resources: zh },
+  ja: { label: "日本語", resources: ja },
+  ko: { label: "한국어", resources: ko },
+} as const;
 
-const SUPPORTED_LANGUAGES = ["en", "es"] as const;
-export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
+export type SupportedLanguage = keyof typeof LANGUAGES;
 
-export const LANGUAGE_OPTIONS: { code: SupportedLanguage; label: string }[] = [
-  { code: "en", label: "English" },
-  { code: "es", label: "Español" },
-];
+export const LANGUAGE_OPTIONS: { code: SupportedLanguage; label: string }[] =
+  Object.entries(LANGUAGES).map(([code, { label }]) => ({
+    code: code as SupportedLanguage,
+    label,
+  }));
+
+const SUPPORTED_LANGUAGES = Object.keys(LANGUAGES) as SupportedLanguage[];
 
 function detectLanguage(locale: string): SupportedLanguage {
   const prefix = locale.split("-")[0].toLowerCase();
@@ -38,28 +100,9 @@ function detectLanguage(locale: string): SupportedLanguage {
 }
 
 i18n.use(initReactI18next).init({
-  resources: {
-    en: {
-      common: enCommon,
-      settings: enSettings,
-      chat: enChat,
-      characters: enCharacters,
-      dashboard: enDashboard,
-      library: enLibrary,
-      story: enStory,
-      onboarding: enOnboarding,
-    },
-    es: {
-      common: esCommon,
-      settings: esSettings,
-      chat: esChat,
-      characters: esCharacters,
-      dashboard: esDashboard,
-      library: esLibrary,
-      story: esStory,
-      onboarding: esOnboarding,
-    },
-  },
+  resources: Object.fromEntries(
+    Object.entries(LANGUAGES).map(([code, { resources }]) => [code, resources])
+  ),
   lng: "en",
   fallbackLng: "en",
   defaultNS: "common",

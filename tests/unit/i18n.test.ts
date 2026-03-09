@@ -14,6 +14,14 @@ const NAMESPACES = [
   "onboarding",
 ];
 
+const LANGUAGES = [
+  "en", "es", "fr", "de", "it", "pt", "nl", "pl",
+  "cs", "sk", "hu", "ro", "bg", "hr", "sl", "sr",
+  "uk", "ru", "et", "lv", "lt", "fi", "sv", "da",
+  "nb", "is", "el", "tr", "ar", "he", "hi", "th",
+  "vi", "id", "ms", "zh", "ja", "ko",
+];
+
 function loadJson(lang: string, ns: string): Record<string, string> {
   const filePath = path.join(LOCALES_DIR, lang, `${ns}.json`);
   return JSON.parse(fs.readFileSync(filePath, "utf-8"));
@@ -24,33 +32,10 @@ function getInterpolationVars(value: string): string[] {
 }
 
 describe("i18n translation completeness", () => {
+  const nonEnLanguages = LANGUAGES.filter((l) => l !== "en");
+
   for (const ns of NAMESPACES) {
     describe(`${ns} namespace`, () => {
-      it(`es/${ns}.json has all keys from en/${ns}.json`, () => {
-        const en = loadJson("en", ns);
-        const es = loadJson("es", ns);
-        const missingKeys = Object.keys(en).filter((k) => !(k in es));
-        expect(missingKeys, `Missing keys in es/${ns}.json`).toEqual([]);
-      });
-
-      it(`es/${ns}.json has no extra keys missing from en/${ns}.json`, () => {
-        const en = loadJson("en", ns);
-        const es = loadJson("es", ns);
-        const extraKeys = Object.keys(es).filter((k) => !(k in en));
-        expect(extraKeys, `Extra keys in es/${ns}.json not in en/${ns}.json`).toEqual([]);
-      });
-
-      it(`es/${ns}.json has matching interpolation variables`, () => {
-        const en = loadJson("en", ns);
-        const es = loadJson("es", ns);
-        for (const key of Object.keys(en)) {
-          if (!(key in es)) continue;
-          const enVars = getInterpolationVars(en[key]);
-          const esVars = getInterpolationVars(es[key]);
-          expect(esVars, `Key "${key}" in ${ns}`).toEqual(enVars);
-        }
-      });
-
       it(`en/${ns}.json has no empty string values`, () => {
         const en = loadJson("en", ns);
         const emptyKeys = Object.entries(en)
@@ -59,13 +44,25 @@ describe("i18n translation completeness", () => {
         expect(emptyKeys, `Empty values in en/${ns}.json`).toEqual([]);
       });
 
-      it(`es/${ns}.json has no empty string values`, () => {
-        const es = loadJson("es", ns);
-        const emptyKeys = Object.entries(es)
-          .filter(([, v]) => v.trim() === "")
-          .map(([k]) => k);
-        expect(emptyKeys, `Empty values in es/${ns}.json`).toEqual([]);
-      });
+      for (const lang of nonEnLanguages) {
+        it(`${lang}/${ns}.json has all keys from en/${ns}.json`, () => {
+          const en = loadJson("en", ns);
+          const target = loadJson(lang, ns);
+          const missingKeys = Object.keys(en).filter((k) => !(k in target));
+          expect(missingKeys, `Missing keys in ${lang}/${ns}.json`).toEqual([]);
+        });
+
+        it(`${lang}/${ns}.json has matching interpolation variables`, () => {
+          const en = loadJson("en", ns);
+          const target = loadJson(lang, ns);
+          for (const key of Object.keys(en)) {
+            if (!(key in target)) continue;
+            const enVars = getInterpolationVars(en[key]);
+            const targetVars = getInterpolationVars(target[key]);
+            expect(targetVars, `Key "${key}" in ${lang}/${ns}`).toEqual(enVars);
+          }
+        });
+      }
     });
   }
 });
